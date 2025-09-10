@@ -8,8 +8,8 @@ from sentence_transformers import SentenceTransformer
 # 🧠 Load local sentence-transformer model
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# 🗃️ Setup ChromaDB
-client = chromadb.Client(Settings())
+# 🗃️ Setup ChromaDB with persistent storage
+client = chromadb.PersistentClient(path="./chroma_db")
 collection = client.get_or_create_collection(name="pdf_chunks")
 
 # ⛔ Commented out - OpenAI dotenv + API key (not needed now)
@@ -40,6 +40,16 @@ def get_embedding(text):
 
 # 🧠 Store chunk embeddings in ChromaDB
 def add_chunks_to_chroma(chunks):
+    # Clear existing documents first to ensure clean state
+    try:
+        # Get all existing IDs and delete them
+        existing_data = collection.get()
+        if existing_data['ids']:
+            collection.delete(ids=existing_data['ids'])
+    except Exception as e:
+        print(f"Note: Could not clear existing data: {e}")
+    
+    # Add new chunks
     for i, chunk in enumerate(chunks):
         embedding = get_embedding(chunk)
         collection.add(
