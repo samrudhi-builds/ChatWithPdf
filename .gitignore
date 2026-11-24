@@ -1,5 +1,14 @@
-askmypdf/venv/
+.venv/
+venv/
 __pycache__/
 *.pyc
 *.pkl
 .DS_Store
+
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+temp.pdf
+chroma_db/
